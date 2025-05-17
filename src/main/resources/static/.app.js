@@ -13,10 +13,6 @@ const cancelDeleteButton = document.getElementById('cancel-delete');
 const cancelUpdateButton = document.getElementById('cancel-update');
 const themeToggle = document.getElementById('theme-toggle');
 const toastContainer = document.getElementById('toast-container');
-const expenseFormModal = document.getElementById('expense-form-modal');
-const closeModalButtons = document.querySelectorAll('.close-modal');
-const addExpenseBtn = document.getElementById('add-expense-btn');
-const submitBtn = document.getElementById('submit-btn');
 
 // Application State
 let expenses = [];
@@ -34,15 +30,6 @@ confirmDeleteButton.addEventListener('click', confirmDelete);
 cancelDeleteButton.addEventListener('click', closeDeleteModal);
 cancelUpdateButton.addEventListener('click', cancelUpdate);
 themeToggle.addEventListener('click', toggleTheme);
-addExpenseBtn.addEventListener('click', openExpenseFormModal);
-
-// Add event listeners to all close modal buttons
-closeModalButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        closeExpenseFormModal();
-        closeDeleteModal();
-    });
-});
 
 // Initialize the application
 function initializeApp() {
@@ -57,9 +44,6 @@ function initializeApp() {
 
     // Add input animations
     addInputAnimations();
-    
-    // Hide cancel update button initially
-    document.getElementById('cancel-update').classList.add('hidden');
 }
 
 // Initialize theme from localStorage
@@ -92,9 +76,9 @@ function toggleTheme() {
 function updateThemeToggleIcon(theme) {
     const icon = themeToggle.querySelector('i');
     if (theme === 'dark') {
-        icon.className = 'fa-solid fa-sun';
+        icon.className = 'fas fa-sun';
     } else {
-        icon.className = 'fa-solid fa-moon';
+        icon.className = 'fas fa-moon';
     }
 }
 
@@ -112,28 +96,6 @@ function addInputAnimations() {
             input.parentElement.classList.remove('focused');
         });
     });
-}
-
-// Open expense form modal
-function openExpenseFormModal() {
-    expenseFormModal.style.display = 'flex';
-    setTimeout(() => {
-        expenseFormModal.classList.add('show');
-    }, 10);
-    
-    // Reset form to add mode
-    resetFormToAddMode();
-}
-
-// Close expense form modal
-function closeExpenseFormModal() {
-    expenseFormModal.classList.remove('show');
-    setTimeout(() => {
-        expenseFormModal.style.display = 'none';
-    }, 300);
-    
-    // Reset form state
-    resetFormToAddMode();
 }
 
 // Fetch all expenses from the backend
@@ -188,9 +150,6 @@ async function handleFormSubmit(event) {
     } else {
         await createExpense(expenseData);
     }
-    
-    // Close the modal
-    closeExpenseFormModal();
 }
 
 // Create a new expense
@@ -293,7 +252,7 @@ function clearFilters() {
 // Calculate and display the total amount
 function calculateTotal(expenses) {
     const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    totalAmountElement.innerText = `₹${total.toFixed(2)}`;
+    totalAmountElement.innerText = `$${total.toFixed(2)}`;
     
     // Add animation to total when it changes
     totalAmountElement.classList.add('highlight');
@@ -327,12 +286,12 @@ function renderExpenses(expenses) {
                 ${expense.notes ? `<p class="expense-notes">${expense.notes}</p>` : ''}
             </div>
             <div class="expense-info">
-                <div class="expense-amount">₹${expense.amount.toFixed(2)}</div>
+                <div class="expense-amount">$${expense.amount.toFixed(2)}</div>
                 <div class="expense-actions">
-                    <button class="action-btn edit-btn" onclick="editExpense(${expense.id})">
+                    <button class="edit-btn" onclick="editExpense(${expense.id})">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn delete-btn" onclick="showDeleteModal(${expense.id})">
+                    <button class="delete-btn" onclick="showDeleteModal(${expense.id})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -352,12 +311,6 @@ function editExpense(id) {
     const expense = expenses.find(exp => exp.id === id);
     if (!expense) return;
     
-    // Open the modal
-    openExpenseFormModal();
-    
-    // Update modal title
-    document.getElementById('form-title').textContent = 'Edit Expense';
-    
     // Fill the form with the expense data
     document.getElementById('title').value = expense.title;
     document.getElementById('amount').value = expense.amount;
@@ -366,17 +319,16 @@ function editExpense(id) {
     document.getElementById('notes').value = expense.notes || '';
     
     // Change form state
-    submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Expense';
+    document.querySelector('.btn-primary').innerHTML = '<i class="fas fa-save"></i> Update Expense';
     document.getElementById('cancel-update').classList.remove('hidden');
+    
+    // Scroll to the form with smooth behavior
+    document.querySelector('.expense-form-container').scrollIntoView({ behavior: 'smooth' });
     
     // Set editing state
     isEditing = true;
     currentExpenseId = id;
 }
-
-// Global function to be accessible from HTML
-window.editExpense = editExpense;
-window.showDeleteModal = showDeleteModal;
 
 // Cancel the update operation
 function cancelUpdate() {
@@ -387,8 +339,7 @@ function cancelUpdate() {
 function resetFormToAddMode() {
     expenseForm.reset();
     document.getElementById('date').valueAsDate = new Date();
-    document.getElementById('form-title').textContent = 'Add New Expense';
-    submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Expense';
+    document.querySelector('.btn-primary').innerHTML = '<i class="fas fa-plus"></i> Add Expense';
     document.getElementById('cancel-update').classList.add('hidden');
     isEditing = false;
     currentExpenseId = null;
@@ -437,8 +388,8 @@ function showToast(title, message, type = 'success') {
                 <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
             </div>
             <div class="toast-text">
-                <h4 class="toast-title">${title}</h4>
-                <p class="toast-message">${message}</p>
+                <h4>${title}</h4>
+                <p>${message}</p>
             </div>
         </div>
         <button class="close-toast">
