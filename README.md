@@ -35,6 +35,10 @@ expense-tracker/
 │   │   │               │   └── ExpenseService.java
 │   │   │               └── ExpenseTrackerApplication.java
 │   │   └── resources/
+│   │       ├── static/
+│   │       │   ├── app.js
+│   │       │   ├── index.html
+│   │       │   └── styles.css
 │   │       ├── application.properties
 │   │       └── schema.sql
 │   └── test/
